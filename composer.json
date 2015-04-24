@@ -1,0 +1,28 @@
+{
+    "name": "bisight/etl",
+    "description": "BiSight ETL: Extract, Transform, Load toolkit",
+    "keywords": ["etl", "extract", "transform", "load", "business intelligence", "bi"],
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Joost Faassen",
+            "email": "j.faassen@onatal.nl",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "e-mail": "support@linkorb.com",
+        "issues": "https://github.com/bisight/etl/issues"
+    },
+    "require": {
+        "symfony/console": "~2.4",
+        "linkorb/database-manager": "dev-master"
+    },
+    "bin": ["bin/bisight"],
+    "autoload": {
+        "psr-4": {
+            "BiSight\\Etl\\": "src/"
+        }
+    }
+}
