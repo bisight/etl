@@ -6,40 +6,56 @@ use BiSight\Etl\Job;
 use SimpleXMLElement;
 use ReflectionClass;
 use RuntimeException;
+use DOMDocument;
 
 class XmlJobLoader implements JobLoaderInterface
 {
     public function loadFile($filename)
     {
         if (!file_exists($filename)) {
-            throw new RuntimeException("Job file not found: " . $filename);
+            throw new RuntimeException("Jobs file not found: " . $filename);
         }
-        $xml = simplexml_load_file($filename);
-        return $this->load($xml);
+        
+        $xml = file_get_contents($filename);
+        
+        $dom = new DOMDocument;
+        $dom->loadXML($xml);
+        $dom->documentURI = $filename;
+        $dom->xinclude();
+        $dom->formatOutput = true;
+        $dom->preserveWhiteSpace = false;
+
+        //echo $dom->saveXML(); exit();
+        $element = simplexml_import_dom($dom);
+        return $this->load($element);
     }
 
     public function load(SimpleXMLElement $xml)
     {
-        $job = new Job();
-        
-        $job->setName((string)$xml['name']);
-        
-        foreach ($xml->extractor as $node) {
-            $instance = $this->getInstanceByNode($node);
-            $job->setExtractor($instance);
-        }
-        
-        foreach ($xml->loader as $node) {
-            $instance = $this->getInstanceByNode($node);
-            $job->addLoader($instance);
+        $jobs = array();
+        foreach ($xml->job as $jobNode) {
+            $job = new Job();
+            
+            $job->setName((string)$jobNode['name']);
+            
+            foreach ($jobNode->extractor as $extractorNode) {
+                $instance = $this->getInstanceByNode($extractorNode);
+                $job->setExtractor($instance);
+            }
+            
+            foreach ($jobNode->loader as $loaderNode) {
+                $instance = $this->getInstanceByNode($loaderNode);
+                $job->addLoader($instance);
+            }
+
+            foreach ($jobNode->transform as $transformNode) {
+                $instance = $this->getInstanceByNode($transformNode);
+                $job->addTransform($instance);
+            }
+            $jobs[] = $job;
         }
 
-        foreach ($xml->transform as $node) {
-            $instance = $this->getInstanceByNode($node);
-            $job->addTransform($instance);
-        }
-
-        return $job;
+        return $jobs;
     }
     
     private function getInstanceByNode(SimpleXMLElement $node)

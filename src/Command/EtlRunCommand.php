@@ -38,9 +38,11 @@ class EtlRunCommand extends Command
         $output->writeLn("Running jobfile: " . $jobfile);
         
         $jobloader = new XmlJobLoader();
-        $job = $jobloader->loadFile($jobfile);
+        $jobs = $jobloader->loadFile($jobfile);
         
         $runner = new ConsoleRunner($output);
-        $runner->run($job);
+        foreach ($jobs as $job) {
+            $runner->run($job);
+        }
     }
 }
