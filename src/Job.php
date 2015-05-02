@@ -2,8 +2,6 @@
 
 namespace BiSight\Etl;
 
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Helper\ProgressBar;
 use BiSight\Etl\Extractor\ExtractorInterface;
 use BiSight\Etl\Transformer\TransformerInterface;
 use BiSight\Etl\Loader\LoaderInterface;
@@ -15,6 +13,19 @@ class Job
         
     }
     
+    private $name;
+    
+    public function getName()
+    {
+        return $this->name;
+    }
+    
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+    
+    
     private $extractor;
     
     public function setExtractor(ExtractorInterface $extractor)
@@ -22,48 +33,32 @@ class Job
         $this->extractor = $extractor;
     }
     
-    private $transformer;
-    
-    public function setTransformer(TransformerInterface $transformer)
+    public function getExtractor()
     {
-        $this->transformer = $transformer;
+        return $this->extractor;
     }
     
-    private $loader;
+    private $transformers = array();
     
-    public function setLoader(LoaderInterface $loader)
+    public function addTransformer(TransformerInterface $transformer)
     {
-        $this->loader = $loader;
+        $this->transformers[] = $transformer;
     }
-    
-    
-    public function run(OutputInterface $output)
-    {
-        $count = $this->extractor->getCount();
-        $output->writeLn("Rows: " . $count);
-        
-        $columns = $this->extractor->getColumns();
-        foreach ($columns as $column) {
-            $output->writeLn(" * <info>" . $column->getName() . "</info> " . $column->getType() . " " . $column->getLength());
-        }
-        $this->loader->init($columns);
-        
-        
-        $progress = new ProgressBar($output, $count);
-        $progress->setFormat('very_verbose');
-        $progress->start();
 
-        $i = 0;
-        while ($i < $count) {
-            $row = new Row();
-            $this->extractor->extract($row);
-            $this->transformer->transform($row);
-            $this->loader->load($row);
-            $progress->advance();
-            $row = null;
-            $i++;
-        }
-        $output->writeLn("");
-        
+    public function getTransformers()
+    {
+        return $this->transformers;
+    }
+    
+    private $loaders = array();
+    
+    public function addLoader(LoaderInterface $loader)
+    {
+        $this->loaders[] = $loader;
+    }
+    
+    public function getLoaders()
+    {
+        return $this->loaders;
     }
 }

@@ -4,6 +4,7 @@ namespace BiSight\Etl\Extractor;
 
 use BiSight\Etl\RowInterface;
 use BiSight\Etl\Column;
+use LinkORB\Component\DatabaseManager\DatabaseManager;
 use PDO;
 use RuntimeException;
 
@@ -13,8 +14,10 @@ class PdoExtractor implements ExtractorInterface
     private $sql;
     private $count;
     
-    public function __construct(PDO $pdo, $sql)
+    public function __construct($dbname, $sql)
     {
+        $dbm = new DatabaseManager();
+        $pdo = $dbm->getPdo($dbname);
         $this->pdo = $pdo;
         $this->sql = $sql;
         

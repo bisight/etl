@@ -22,5 +22,4 @@ require $loader;
 $application = new Application('BiSight console tools', '0.0.1');
 $application->setCatchExceptions(true);
 $application->add(new \BiSight\Etl\Command\EtlRunCommand());
-$application->add(new \BiSight\Etl\Command\EtlTestCommand());
 $application->run();

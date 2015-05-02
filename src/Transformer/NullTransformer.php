@@ -10,6 +10,11 @@ class NullTransformer implements TransformerInterface
     {
     }
     
+    public function getColumns()
+    {
+        return array();
+    }
+    
     public function transform(RowInterface $row)
     {
         

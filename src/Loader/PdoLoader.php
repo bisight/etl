@@ -3,6 +3,7 @@
 namespace BiSight\Etl\Loader;
 
 use BiSight\Etl\RowInterface;
+use LinkORB\Component\DatabaseManager\DatabaseManager;
 use RuntimeException;
 
 class PdoLoader implements LoaderInterface
@@ -11,10 +12,18 @@ class PdoLoader implements LoaderInterface
     private $tablename;
     private $columns = array();
     
-    public function __construct($pdo, $tablename)
+    public function __construct($dbname, $tablename)
     {
+        $dbm = new DatabaseManager();
+        $pdo = $dbm->getPdo($dbname);
+
         $this->pdo = $pdo;
         $this->tablename = $tablename;
+    }
+    
+    public function getTablename()
+    {
+        return $this->tablename;
     }
     
     public function load(RowInterface $row)
