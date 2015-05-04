@@ -14,6 +14,7 @@ use BiSight\Etl\Transformer\NullTransformer;
 use BiSight\Etl\Loader\PdoLoader;
 use BiSight\Etl\JobLoader\XmlJobLoader;
 use BiSight\Etl\Runner\ConsoleRunner;
+use RuntimeException;
 
 class EtlRunCommand extends Command
 {
@@ -27,6 +28,11 @@ class EtlRunCommand extends Command
                 InputArgument::REQUIRED,
                 'Filename of the job'
             )
+            ->addArgument(
+                'variables',
+                InputArgument::IS_ARRAY,
+                'Specify your variables!'
+            )
         ;
     }
     
@@ -35,10 +41,19 @@ class EtlRunCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $jobfile = $input->getArgument('jobfile');
+        $variables = $input->getArgument('variables');
+        $v = array();
+        foreach ($variables as $variable) {
+            $part = explode("=", $variable);
+            if (count($part)!=2) {
+                throw new RuntimeException("Invalid variable format: `" . $variable . '`. Please use the key=value format.');
+            }
+            $v[$part[0]] = $part[1];
+        }
         $output->writeLn("Running jobfile: " . $jobfile);
         
         $jobloader = new XmlJobLoader();
-        $jobs = $jobloader->loadFile($jobfile);
+        $jobs = $jobloader->loadFile($jobfile, $v);
         
         $runner = new ConsoleRunner($output);
         foreach ($jobs as $job) {
