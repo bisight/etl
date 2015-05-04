@@ -60,9 +60,9 @@ class XmlJobLoader implements JobLoaderInterface
             $job->addLoader($instance);
         }
 
-        foreach ($jobNode->transform as $transformNode) {
-            $instance = $this->getInstanceByNode($transformNode);
-            $job->addTransform($instance);
+        foreach ($jobNode->transformer as $transformerNode) {
+            $instance = $this->getInstanceByNode($transformerNode);
+            $job->addTransformer($instance);
         }
         return $job;
 
