@@ -20,4 +20,9 @@ class Row implements RowInterface
     {
         return $this->data[$key];
     }
+    
+    public function getArray()
+    {
+        return $this->data;
+    }
 }
