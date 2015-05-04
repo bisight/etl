@@ -8,8 +8,11 @@ use DateTime;
 
 class DateTransformer implements TransformerInterface
 {
-    public function __construct()
+    private $dateColumnName;
+    
+    public function __construct($dateColumnName = 'date')
     {
+        $this->dateColumnName = $dateColumnName;
     }
     
     public function getColumns()
@@ -85,7 +88,7 @@ class DateTransformer implements TransformerInterface
     
     public function transform(RowInterface $row)
     {
-        $datestring = $row->get('date');
+        $datestring = $row->get($dateColumnName);
         $date = new DateTime($datestring);
         $quarter = ceil($date->format('n')/3);
         $weekday = 'Y';
