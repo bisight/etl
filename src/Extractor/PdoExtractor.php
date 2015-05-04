@@ -28,7 +28,7 @@ class PdoExtractor implements ExtractorInterface
         $res = $this->stmt->execute();
         if (!$res) {
             $arr = $this->stmt->errorInfo();
-            throw new RuntimeException($arr[2] . "\n" . $sql);
+            throw new RuntimeException($arr[2] . "\n" . $this->sql);
         }
     }
 
