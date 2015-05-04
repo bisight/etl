@@ -27,7 +27,7 @@ class ConsoleRunner
         $columns = $extractor->getColumns();
         
         foreach ($transformers as $transformer) {
-            $columnsNew = $job->transformer->getColumns();
+            $columnsNew = $transformer->getColumns();
             $columns = array_merge($columns, $columnsNew);
         }
         
@@ -51,7 +51,7 @@ class ConsoleRunner
             $extractor->extract($row);
             
             foreach ($transformers as $transformer) {
-                $transformers->transform($row);
+                $transformer->transform($row);
             }
             
             foreach ($loaders as $loader) {
