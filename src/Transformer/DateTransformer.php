@@ -88,7 +88,7 @@ class DateTransformer implements TransformerInterface
     
     public function transform(RowInterface $row)
     {
-        $datestring = $row->get($dateColumnName);
+        $datestring = $row->get($this->dateColumnName);
         $date = new DateTime($datestring);
         $quarter = ceil($date->format('n')/3);
         $weekday = 'Y';
