@@ -100,9 +100,12 @@ class XmlJobLoader implements JobLoaderInterface
         if ($method) {
             foreach ($method->getParameters() as $p) {
                 if (!isset($data[$p->getName()])) {
-                    throw new RuntimeException("Constructor argument `" . $p->getName() . "` not defined in argument list");
+                    if (!$p->isOptional()) {
+                        throw new RuntimeException("Non-optional constructor argument `" . $p->getName() . "` not defined in argument list");
+                    }
+                } else {
+                    $arguments[] = $data[$p->getName()];
                 }
-                $arguments[] = $data[$p->getName()];
             }
         }
         return $arguments;
