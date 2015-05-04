@@ -27,34 +27,53 @@ class XmlJobLoader implements JobLoaderInterface
 
         //echo $dom->saveXML(); exit();
         $element = simplexml_import_dom($dom);
-        return $this->load($element);
+        switch ($element->getName()) {
+            case 'job':
+                $jobs = array();
+                $jobs[] = $this->loadJob($element);
+                break;
+            case 'jobs':
+                $jobs = $this->loadJobs($element);
+                break;
+            default:
+                throw new RuntimeException(
+                    "Unsupported root element (should be job or jobs): " .
+                    $element->getName()
+                );
+        }
+        return $jobs;
     }
 
-    public function load(SimpleXMLElement $xml)
+    public function loadJob(SimpleXMLElement $jobNode)
+    {
+        $job = new Job();
+        
+        $job->setName((string)$jobNode['name']);
+        
+        foreach ($jobNode->extractor as $extractorNode) {
+            $instance = $this->getInstanceByNode($extractorNode);
+            $job->setExtractor($instance);
+        }
+        
+        foreach ($jobNode->loader as $loaderNode) {
+            $instance = $this->getInstanceByNode($loaderNode);
+            $job->addLoader($instance);
+        }
+
+        foreach ($jobNode->transform as $transformNode) {
+            $instance = $this->getInstanceByNode($transformNode);
+            $job->addTransform($instance);
+        }
+        return $job;
+
+    }
+    public function loadJobs(SimpleXMLElement $xml)
     {
         $jobs = array();
         foreach ($xml->job as $jobNode) {
-            $job = new Job();
-            
-            $job->setName((string)$jobNode['name']);
-            
-            foreach ($jobNode->extractor as $extractorNode) {
-                $instance = $this->getInstanceByNode($extractorNode);
-                $job->setExtractor($instance);
-            }
-            
-            foreach ($jobNode->loader as $loaderNode) {
-                $instance = $this->getInstanceByNode($loaderNode);
-                $job->addLoader($instance);
-            }
-
-            foreach ($jobNode->transform as $transformNode) {
-                $instance = $this->getInstanceByNode($transformNode);
-                $job->addTransform($instance);
-            }
+            $job = $this->loadJob($jobNode);
             $jobs[] = $job;
         }
-
         return $jobs;
     }
     
