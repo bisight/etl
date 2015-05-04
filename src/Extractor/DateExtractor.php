@@ -20,8 +20,13 @@ class DateExtractor implements ExtractorInterface
     {
         $this->start = new DateTime($start);
         $this->end = new DateTime($end);
-        $this->day = $this->start;
+        
         $this->interval = $interval;
+    }
+    
+    public function init()
+    {
+        $this->day = $this->start;
     }
 
     public function getCount()

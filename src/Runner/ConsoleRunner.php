@@ -17,12 +17,15 @@ class ConsoleRunner
     
     public function run(Job $job)
     {
+        
         $extractor = $job->getExtractor();
         $transformers = $job->getTransformers();
         $loaders = $job->getLoaders();
+        
+        $extractor->init();
 
         $count = $extractor->getCount();
-        $this->output->writeLn("Rows: " . $count);
+        $this->output->writeLn("Running job: " . $job->getName() . ' with ' . $count . ' rows');
         
         $columns = $extractor->getColumns();
         

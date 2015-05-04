@@ -20,8 +20,11 @@ class PdoExtractor implements ExtractorInterface
         $pdo = $dbm->getPdo($dbname);
         $this->pdo = $pdo;
         $this->sql = $sql;
-        
-        $this->stmt = $this->pdo->prepare($sql);
+    }
+    
+    public function init()
+    {
+        $this->stmt = $this->pdo->prepare($this->sql);
         $res = $this->stmt->execute();
         if (!$res) {
             $arr = $this->stmt->errorInfo();
