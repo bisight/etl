@@ -16,11 +16,11 @@ class DateExtractor implements ExtractorInterface
     private $day;
     private $interval;
     
-    public function __construct(DateTime $start, DateTime $end, $interval = 1)
+    public function __construct($start, $end, $interval = 1)
     {
-        $this->start = $start;
-        $this->end = $end;
-        $this->day = $start;
+        $this->start = new DateTime($start);
+        $this->end = new DateTime($end);
+        $this->day = $this->start;
         $this->interval = $interval;
     }
 
