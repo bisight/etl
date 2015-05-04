@@ -97,6 +97,24 @@ Output:
 * weekdayname: Name of the day of the week (i.e. `tuesday`)
 * weekdayflag: Is this day a weekday? (i.e. Y or N for saturday+sunday)
 
+### ExpressionTransformer
+
+This transformer allows you to provide arbitrary expressions.
+
+Arguments:
+
+* outputColumnName: The name fo the column that will receive the result of the expression
+* expression: raw expression
+
+This transformer is powered by the [Symfony Expression Language Component](http://symfony.com/doc/current/components/expression_language/index.html).
+So all of it's features are automatically supported.
+
+For example, you can create simple math formulas:
+
+    -1 * my_column_a + my_column_b
+
+All columns in the row are available in as variable names in the expression.
+
 ## Jobs and Jobfiles
 
 You can load and run job configurations (combinations of an Extractor, multiple transformers, and multiple loaders) from a simple XML file. In this file you express which classes to use, and 
