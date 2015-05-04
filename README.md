@@ -163,6 +163,27 @@ Here's a simple example:
 
 These can then all be executed in sequence using the `etl:run` command described earlier.
 
+## Variables in jobfiles
+
+It can be practical to use variables in your jobfiles. For example for basepaths, or dbnames.
+
+You can do that like this:
+
+```xml
+<?xml version="1.0" ?>
+<job name="Invoice information">
+    <extractor>
+        <class>BiSight\Etl\Extractor\PdoExtractor</class>
+        <argument name="dbname">{{dbname}}</argument>
+        <!-- etc... -->
+```
+
+Then you can provide the variable on the cli to the job runner:
+
+    ./bin/bisight etl:run my/jobfile.xml dbname=exampledb
+    
+You can use and pass as many variables as you want.
+
 ## Further development
 
 This is an ongoing project, and we'll be adding more E/T/L classes whenever we need them.
