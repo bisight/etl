@@ -66,6 +66,9 @@ class PdoLoader implements LoaderInterface
         foreach ($columns as $column) {
             
             switch ($column->getType()) {
+                case "TINY":
+                    $type = "int(" . $column->getLength() . ")";
+                    break;
                 case "LONG":
                     $type = "int(" . $column->getLength() . ")";
                     break;
@@ -74,6 +77,12 @@ class PdoLoader implements LoaderInterface
                     break;
                 case "VAR_STRING":
                     $type = "varchar(" . $column->getLength() . ")";
+                    break;
+                case "STRING":
+                    $type = "varchar(" . $column->getLength() . ")";
+                    break;
+                case "BLOB":
+                    $type = "text";
                     break;
                 default:
                     throw new RuntimeException("Unsupported type: " . $column->getType());
