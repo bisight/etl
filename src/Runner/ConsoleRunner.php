@@ -66,6 +66,10 @@ class ConsoleRunner
             $i++;
         }
         
+        foreach ($loaders as $loader) {
+            $loader->cleanup();
+        }
+        
         $this->output->writeLn("");
     }
 }

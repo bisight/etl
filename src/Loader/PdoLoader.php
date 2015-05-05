@@ -10,15 +10,17 @@ class PdoLoader implements LoaderInterface
 {
     private $pdo;
     private $tablename;
+    private $indexes;
     private $columns = array();
     
-    public function __construct($dbname, $tablename)
+    public function __construct($dbname, $tablename, $indexes = null)
     {
         $dbm = new DatabaseManager();
         $pdo = $dbm->getPdo($dbname);
 
         $this->pdo = $pdo;
         $this->tablename = $tablename;
+        $this->indexes = $indexes;
     }
     
     public function getTablename()
@@ -85,5 +87,38 @@ class PdoLoader implements LoaderInterface
         $this->stmt = $this->pdo->prepare($sql);
         $this->stmt->execute();
 
+    }
+    
+    public function cleanup()
+    {
+        $indexes = $this->indexes;
+        $indexes = str_replace("\n", ";", $indexes);
+        $lines = explode(';', $indexes);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line) {
+                $part = explode(':', $line);
+                $indexname = $part[0];
+                if (count($part)!=2) {
+                    throw new RuntimeException("Failed parsing indexline: " . $line);
+                }
+                $columnnames = explode(',', $part[1]);
+                
+                $sql = "CREATE INDEX " . $indexname;
+                $sql .= " ON " . $this->tablename;
+                $sql .= "(";
+                
+                foreach ($columnnames as $columnname) {
+                    $sql .= $columnname . ', ';
+                }
+                
+                $sql = rtrim($sql, ' ,');
+                $sql .= ");";
+                //echo "\n" .$sql . "\n";
+                
+                $this->stmt = $this->pdo->prepare($sql);
+                $res = $this->stmt->execute();
+            }
+        }
     }
 }
