@@ -12,6 +12,7 @@ class JsonExtractor implements ExtractorInterface
 {
     private $basepath;
     private $fileNames = array();
+    private $columns;
     private $index = 0;
     
     public function __construct($basepath, $columns)
