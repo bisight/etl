@@ -50,7 +50,7 @@ class PdoExtractor implements ExtractorInterface
             $column->setType((string)$meta['native_type']);
             $column->setPrecision((string)$meta['precision']);
             // optional: flags and tablename
-            $columns[] = $column;
+            $columns[$column->getAlias()] = $column;
             $i++;
         }
         return $columns;
