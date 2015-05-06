@@ -118,6 +118,7 @@ class XmlJobLoader implements JobLoaderInterface
                     if (!$p->isOptional()) {
                         throw new RuntimeException("Non-optional constructor argument `" . $p->getName() . "` not defined in argument list");
                     }
+                    $arguments[] = $p->getDefaultValue();
                 } else {
                     $arguments[] = $data[$p->getName()];
                 }
