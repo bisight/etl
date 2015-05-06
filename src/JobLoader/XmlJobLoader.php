@@ -3,6 +3,7 @@
 namespace BiSight\Etl\JobLoader;
 
 use BiSight\Etl\Job;
+use BiSight\Etl\Column;
 use SimpleXMLElement;
 use ReflectionClass;
 use RuntimeException;
@@ -89,6 +90,17 @@ class XmlJobLoader implements JobLoaderInterface
             $value = $this->processVariables($value, $variables);
             $arguments[$name] = $value;
         }
+
+        $columns = array();
+        foreach ($node->column as $columnNode) {
+            $column = new Column();
+            $column->setName((string)$columnNode['name']);
+            $column->setType((string)$columnNode['type']);
+            $column->setLength((string)$columnNode['length']);
+            $columns[$column->getName()] = $column;
+        }
+        $arguments['columns'] = $columns;
+        
         $method = $reflector->getConstructor();
     
         $instance = $reflector->newInstanceArgs($this->getMethodArguments($method, $arguments));
