@@ -15,6 +15,22 @@ class Column
     {
         $this->name = $name;
     }
+    
+    private $alias;
+    
+    public function getAlias()
+    {
+        if ($this->alias) {
+            return $this->alias;
+        }
+        return $this->name;
+    }
+    
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+    }
+    
 
     private $length;
     

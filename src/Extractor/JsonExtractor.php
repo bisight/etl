@@ -56,7 +56,7 @@ class JsonExtractor implements ExtractorInterface
             if (isset($data[$column->getName()])) {
                 $value = $data[$column->getName()];
             }
-            $row->set($column->getName(), $value);
+            $row->set($column->getAlias(), $value);
         }
         $this->index++;
     }

@@ -12,8 +12,9 @@ class PdoLoader implements LoaderInterface
     private $tablename;
     private $indexes;
     private $columns = array();
+    private $skipdrop = false;
     
-    public function __construct($dbname, $tablename, $indexes = null)
+    public function __construct($dbname, $tablename, $indexes = null, $skipdrop = false)
     {
         $dbm = new DatabaseManager();
         $pdo = $dbm->getPdo($dbname);
@@ -21,6 +22,9 @@ class PdoLoader implements LoaderInterface
         $this->pdo = $pdo;
         $this->tablename = $tablename;
         $this->indexes = $indexes;
+        if ($skipdrop == 'true') {
+            $this->skipdrop = true;
+        }
     }
     
     public function getTablename()
@@ -33,21 +37,19 @@ class PdoLoader implements LoaderInterface
         $sql = "INSERT INTO " . $this->tablename;
         $sql .= " (";
         foreach ($this->columns as $column) {
-            $sql .= $column->getName() . ", ";
+            $sql .= $column->getAlias() . ", ";
         }
         $sql = rtrim($sql, ", ");
         $sql .= ") VALUES (";
         $values = array();
         
         foreach ($this->columns as $column) {
-            $values[] = $row->get($column->getName());
+            $values[] = $row->get($column->getAlias());
             $sql .= "?, ";
         }
         $sql = rtrim($sql, ", ");
         $sql .= ");";
-        
-        //echo $sql;
-        
+
         $this->stmt = $this->pdo->prepare($sql);
         $this->stmt->execute($values);
     }
@@ -55,11 +57,11 @@ class PdoLoader implements LoaderInterface
     public function init($columns)
     {
         $this->columns = $columns;
-        
-        $sql = "DROP TABLE " . $this->tablename;
-        $this->stmt = $this->pdo->prepare($sql);
-        $this->stmt->execute();
-
+        if (!$this->skipdrop) {
+            $sql = "DROP TABLE " . $this->tablename;
+            $this->stmt = $this->pdo->prepare($sql);
+            $this->stmt->execute();
+        }
         
         $sql = "CREATE TABLE " . $this->tablename;
         $sql .= "(";
@@ -87,7 +89,7 @@ class PdoLoader implements LoaderInterface
                 default:
                     throw new RuntimeException("Unsupported type: " . $column->getType());
             }
-            $sql .= $column->getName() . " " . $type . ", ";
+            $sql .= $column->getAlias() . " " . $type . ", ";
         }
         $sql = rtrim($sql, ", ");
         $sql .= ");";
