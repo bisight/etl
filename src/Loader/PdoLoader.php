@@ -115,8 +115,8 @@ class PdoLoader implements LoaderInterface
                 }
                 $columnnames = explode(',', $part[1]);
                 
-                $sql = "CREATE INDEX " . $indexname;
-                $sql .= " ON " . $this->tablename;
+                $sql = "ALTER TABLE " . $this->tablename;
+                $sql .= " ADD INDEX " . $indexname;
                 $sql .= "(";
                 
                 foreach ($columnnames as $columnname) {
@@ -125,7 +125,7 @@ class PdoLoader implements LoaderInterface
                 
                 $sql = rtrim($sql, ' ,');
                 $sql .= ");";
-                //echo "\n" .$sql . "\n";
+                echo "\n" .$sql . "\n";
                 
                 $this->stmt = $this->pdo->prepare($sql);
                 $res = $this->stmt->execute();
