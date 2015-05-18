@@ -213,7 +213,8 @@ just take a look at the existing implementations as an example.
 
 ## Brought to you by the LinkORB Engineering team
 
-Check out our other projects at [linkorb.com/engineering](http://www.linkorb.com/engineering).
+<img src="http://www.linkorb.com/d/meta/tier1/images/linkorbengineering-logo.png" width="200px" /><br />
+Check out our other projects at [engineering.linkorb.com](http://engineering.linkorb.com).
 
 Btw, we're hiring!
 
