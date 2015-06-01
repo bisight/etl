@@ -13,7 +13,7 @@ class PdoLoader implements LoaderInterface
     private $indexes;
     private $columns = array();
     private $skipdrop = false;
-    
+
     public function __construct($dbname, $tablename, $indexes = null, $skipdrop = false)
     {
         $dbm = new DatabaseManager();
@@ -26,12 +26,12 @@ class PdoLoader implements LoaderInterface
             $this->skipdrop = true;
         }
     }
-    
+
     public function getTablename()
     {
         return $this->tablename;
     }
-    
+
     public function load(RowInterface $row)
     {
         $sql = "INSERT INTO " . $this->tablename;
@@ -42,7 +42,7 @@ class PdoLoader implements LoaderInterface
         $sql = rtrim($sql, ", ");
         $sql .= ") VALUES (";
         $values = array();
-        
+
         foreach ($this->columns as $column) {
             $values[] = $row->get($column->getAlias());
             $sql .= "?, ";
@@ -53,7 +53,7 @@ class PdoLoader implements LoaderInterface
         $this->stmt = $this->pdo->prepare($sql);
         $this->stmt->execute($values);
     }
-    
+
     public function init($columns)
     {
         $this->columns = $columns;
@@ -62,11 +62,11 @@ class PdoLoader implements LoaderInterface
             $this->stmt = $this->pdo->prepare($sql);
             $this->stmt->execute();
         }
-        
+
         $sql = "CREATE TABLE " . $this->tablename;
         $sql .= "(";
         foreach ($columns as $column) {
-            
+
             switch ($column->getType()) {
                 case "TINY":
                     $type = "int(" . $column->getLength() . ")";
@@ -94,12 +94,12 @@ class PdoLoader implements LoaderInterface
         $sql = rtrim($sql, ", ");
         $sql .= ");";
         //echo $sql;
-        
+
         $this->stmt = $this->pdo->prepare($sql);
         $this->stmt->execute();
 
     }
-    
+
     public function cleanup()
     {
         $indexes = $this->indexes;
@@ -114,19 +114,19 @@ class PdoLoader implements LoaderInterface
                     throw new RuntimeException("Failed parsing indexline: " . $line);
                 }
                 $columnnames = explode(',', $part[1]);
-                
+
                 $sql = "ALTER TABLE " . $this->tablename;
                 $sql .= " ADD INDEX " . $indexname;
                 $sql .= "(";
-                
+
                 foreach ($columnnames as $columnname) {
                     $sql .= $columnname . ', ';
                 }
-                
+
                 $sql = rtrim($sql, ' ,');
                 $sql .= ");";
                 echo "\n" .$sql . "\n";
-                
+
                 $this->stmt = $this->pdo->prepare($sql);
                 $res = $this->stmt->execute();
             }

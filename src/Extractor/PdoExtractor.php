@@ -13,7 +13,7 @@ class PdoExtractor implements ExtractorInterface
     private $pdo;
     private $sql;
     private $count;
-    
+
     public function __construct($dbname, $sql)
     {
         $dbm = new DatabaseManager();
@@ -21,7 +21,7 @@ class PdoExtractor implements ExtractorInterface
         $this->pdo = $pdo;
         $this->sql = $sql;
     }
-    
+
     public function init()
     {
         $this->stmt = $this->pdo->prepare($this->sql);
@@ -36,7 +36,7 @@ class PdoExtractor implements ExtractorInterface
     {
         return $this->stmt->rowCount();
     }
-    
+
     public function getColumns()
     {
         $columns = array();
@@ -55,7 +55,7 @@ class PdoExtractor implements ExtractorInterface
         }
         return $columns;
     }
-    
+
     public function extract(RowInterface $row)
     {
         $data = $this->stmt->fetch(PDO::FETCH_ASSOC);
