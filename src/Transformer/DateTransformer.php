@@ -9,16 +9,16 @@ use DateTime;
 class DateTransformer implements TransformerInterface
 {
     private $dateColumnName;
-    
+
     public function __construct($dateColumnName = 'date')
     {
         $this->dateColumnName = $dateColumnName;
     }
-    
+
     public function getColumns()
     {
         $columns = array();
-        
+
         $column = new Column();
         $column->setName('year');
         $column->setType('LONG');
@@ -29,6 +29,13 @@ class DateTransformer implements TransformerInterface
 
         $column = new Column();
         $column->setName('month');
+        $column->setType('LONG');
+        $column->setLength(11);
+        $column->setPrecision('');
+        $columns[] = $column;
+
+        $column = new Column();
+        $column->setName('weeknumber');
         $column->setType('LONG');
         $column->setLength(11);
         $column->setPrecision('');
@@ -47,14 +54,14 @@ class DateTransformer implements TransformerInterface
         $column->setLength(11);
         $column->setPrecision('');
         $columns[] = $column;
-        
+
         $column = new Column();
         $column->setName('yearquarter');
         $column->setType('LONG');
         $column->setLength(11);
         $column->setPrecision('');
         $columns[] = $column;
-        
+
         $column = new Column();
         $column->setName('yearquartermonth');
         $column->setType('LONG');
@@ -75,24 +82,24 @@ class DateTransformer implements TransformerInterface
         $column->setLength(16);
         $column->setPrecision('');
         $columns[] = $column;
-        
+
         $column = new Column();
         $column->setName('weekdayflag');
         $column->setType('VAR_STRING');
         $column->setLength(1);
         $column->setPrecision('');
         $columns[] = $column;
-        
+
         return $columns;
     }
-    
+
     public function transform(RowInterface $row)
     {
         $datestring = $row->get($this->dateColumnName);
         $date = new DateTime($datestring);
         $quarter = ceil($date->format('n')/3);
         $weekday = 'Y';
-        
+
         if (($date->format('N')==6) || ($date->format('N')==7)) {
             $weekday = 'N';
         }
@@ -102,6 +109,7 @@ class DateTransformer implements TransformerInterface
         $row->set('weekday', (int)$date->format('N'));
         $row->set('weekdayname', $date->format('l'));
         $row->set('weekdayflag', $weekday);
+        $row->set('weeknumber', (int)$date->format('W'));
         $row->set('yearmonth', (int)$date->format('Ym'));
         $row->set('quarter', (int)$quarter);
         $row->set('yearquarter', (int)$date->format('Y') . $quarter);
