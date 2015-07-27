@@ -21,6 +21,9 @@
         
         "linkorb/database-manager": "dev-master"
     },
+    "require-dev": {
+        "secondtruth/phar-compiler": "dev-master"
+    },
     "bin": ["bin/bisight"],
     "autoload": {
         "psr-4": {
