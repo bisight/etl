@@ -19,7 +19,10 @@
         "symfony/console": "~2.4",
         "symfony/expression-language": "~2.4",
         
-        "linkorb/database-manager": "dev-master"
+        "linkorb/database-manager": "~1.0"
+    },
+    "require-dev": {
+        "secondtruth/phar-compiler": "dev-master"
     },
     "bin": ["bin/bisight"],
     "autoload": {

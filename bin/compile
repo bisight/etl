@@ -1,0 +1,20 @@
+#!/usr/bin/env php -dphar.readonly=0
+<?php
+
+$projectPath = dirname(__DIR__);
+require($projectPath . '/vendor/autoload.php');
+
+use Secondtruth\Compiler\Compiler;
+
+$compiler = new Compiler($projectPath);
+$compiler->addIndexFile('bin/bisight');
+$compiler->addDirectory('src', '!*.php');
+$compiler->addFile('vendor/autoload.php');
+$compiler->addDirectory('vendor/composer', '!*.php');
+$compiler->addDirectory('vendor/linkorb/database-manager', ['examples/*', '!*.php']);
+$compiler->addDirectory('vendor/symfony/console', ['**/Tests/*', '!*.php']);
+
+// used at /src/Transformer/ExpressionTransformer.php
+$compiler->addDirectory('vendor/symfony/expression-language', ['**/Tests/*', '!*.php']);
+
+$compiler->compile("$projectPath/bisight-etl.phar");
