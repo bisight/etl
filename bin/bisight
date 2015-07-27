@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-use Symfony\Component\Console\Application;
+use BiSight\Etl\Console\Application;
 
 $loader = __DIR__ . '/../vendor/autoload.php';
 
@@ -19,7 +19,8 @@ if (!file_exists($loader)) {
 
 require $loader;
 
-$application = new Application('BiSight console tools', '0.0.1');
+$application = new Application('BiSight console tools', Application::VERSION);
 $application->setCatchExceptions(true);
 $application->add(new \BiSight\Etl\Command\EtlRunCommand());
+$application->add(new \BiSight\Etl\Command\SelfUpdateCommand());
 $application->run();
