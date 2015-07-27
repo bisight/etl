@@ -14,4 +14,7 @@ $compiler->addDirectory('vendor/composer', '!*.php');
 $compiler->addDirectory('vendor/linkorb/database-manager', ['examples/*', '!*.php']);
 $compiler->addDirectory('vendor/symfony/console', ['**/Tests/*', '!*.php']);
 
+// used at /src/Transformer/ExpressionTransformer.php
+$compiler->addDirectory('vendor/symfony/expression-language', ['**/Tests/*', '!*.php']);
+
 $compiler->compile("$projectPath/bisight-etl.phar");
