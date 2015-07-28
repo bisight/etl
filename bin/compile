@@ -4,7 +4,7 @@
 $projectPath = dirname(__DIR__);
 require($projectPath . '/vendor/autoload.php');
 
-use Secondtruth\Compiler\Compiler;
+use BiSight\Etl\Compiler\Compiler;
 
 $compiler = new Compiler($projectPath);
 $compiler->addIndexFile('bin/bisight');
@@ -17,4 +17,14 @@ $compiler->addDirectory('vendor/symfony/console', ['**/Tests/*', '!*.php']);
 // used at /src/Transformer/ExpressionTransformer.php
 $compiler->addDirectory('vendor/symfony/expression-language', ['**/Tests/*', '!*.php']);
 
+# Self-update command dependencies
+$compiler->addFile('vendor/herrera-io/phar-update/res/schema.json');
+$compiler->addDirectory('vendor/herrera-io/json', ['src/tests/*', '!*.php']);
+$compiler->addDirectory('vendor/herrera-io/phar-update', ['src/tests/*', '!*.php']);
+$compiler->addDirectory('vendor/justinrainbow/json-schema', ['tests/*', '!*.php']);
+$compiler->addDirectory('vendor/kherge/version', ['src/tests/*', '!*.php']);
+$compiler->addDirectory('vendor/seld/jsonlint', ['tests/*', '!*.php']);
+
 $compiler->compile("$projectPath/bisight-etl.phar");
+
+echo "Compilation done\n";

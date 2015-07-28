@@ -1,3 +1,6 @@
 vendor/*
 composer.phar
 bisight-etl.phar
+
+# Testing
+phpunit.xml
