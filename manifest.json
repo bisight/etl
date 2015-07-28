@@ -1,3 +1,8 @@
 [
-    
+    {
+        "name": "bisight-etl.phar",
+        "sha1": "484262e451cd014a7232071cb771c5d1d3a315f9",
+        "url": "https://github.com/bisight/etl/releases/download/v1.3.0/bisight-etl.phar",
+        "version": "1.3.0"
+    }
 ]
