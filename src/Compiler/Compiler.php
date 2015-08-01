@@ -7,8 +7,8 @@ use Secondtruth\Compiler\Compiler as BaseCompiler;
 
 class Compiler extends BaseCompiler
 {
-	protected function getVersionDate()
-	{
+    protected function getVersionDate()
+    {
         $process = new Process('git log -n1 --pretty=%ci HEAD', __DIR__);
         if ($process->run() != 0) {
             throw new \RuntimeException('Can\'t run git log. You must ensure to run compile from git repository clone and that git binary is available.');
@@ -19,7 +19,7 @@ class Compiler extends BaseCompiler
         return $versionDate;
     }
 
-	protected function generateStub($name)
+    protected function generateStub($name)
     {
         $stub = array('#!/usr/bin/env php', '<?php');
         $stub[] = "Phar::mapPhar('$name');";
@@ -46,7 +46,7 @@ class Compiler extends BaseCompiler
         }
         $stub[] = '}';
         $stub[] = '__HALT_COMPILER();';
-        return join("\n", $stub);
-    }
 
+        return implode("\n", $stub);
+    }
 }

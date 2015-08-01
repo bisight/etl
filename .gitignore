@@ -1,6 +1,15 @@
 vendor/*
-composer.phar
-bisight-etl.phar
+/build
+
+# Job files
+*.xml
+
+# Binaries
+*.phar
 
 # Testing
 phpunit.xml
+
+# Project files
+*.sublime-*
+.php_cs.cache

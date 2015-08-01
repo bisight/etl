@@ -1,0 +1,34 @@
+site_name: Bisight ETL
+repo_url: https://github.com/bisight/etl
+
+docs_dir: docs
+site_dir: build/docs
+
+pages:
+  - Home: index.md
+  - FAQ: faq.md
+  - Installation: installation.md
+  - Usage:
+    - Jobs: jobs.md
+    - Columns: columns.md
+    - Extractors:
+      - DateExtractor: extractors/date-extractor.md
+      - PdoExtractor: extractors/pdo-extractor.md
+      - CsvExtractor: extractors/csv-extractor.md
+      - JsonExtractor: extractors/json-extractor.md
+    - Transformers:
+      - CopyTransformer: transformers/copy-transformer.md
+      - DateTransformer: transformers/date-transformer.md
+      - ExpressionTransformer: transformers/expression-transformer.md
+      - NullTransformer: transformers/null-transformer.md
+      - ResaleTransformer: transformers/resale-transformer.md
+      - SplitTransformer: transformers/split-transformer.md
+    - Loaders:
+      - PdoLoader: loaders/pdo-loader.md
+  - Examples: examples.md
+  - Contributing: contributing.md
+  - Testing: testing.md
+  - About: about.md
+  - License: license.md
+
+theme: readthedocs

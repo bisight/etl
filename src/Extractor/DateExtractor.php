@@ -4,8 +4,6 @@ namespace BiSight\Etl\Extractor;
 
 use BiSight\Etl\RowInterface;
 use BiSight\Etl\Column;
-use PDO;
-use RuntimeException;
 use DateInterval;
 use DateTime;
 
@@ -15,43 +13,59 @@ class DateExtractor implements ExtractorInterface
     private $end;
     private $day;
     private $interval;
-    
+
+    /**
+     * @param string  $start
+     * @param string  $end
+     * @param integer $interval
+     */
     public function __construct($start, $end, $interval = 1)
     {
         $this->start = new DateTime($start);
         $this->end = new DateTime($end);
-        
+
         $this->interval = $interval;
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function init()
     {
         $this->day = $this->start;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCount()
     {
         $diff = $this->start->diff($this->end);
-        return (int)$diff->days;
+
+        return (int) $diff->days;
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns()
     {
-        $columns = array();
-
-        $column = new Column();
-        $column->setName('date');
-        $column->setLength(8);
-        $column->setType('LONG');
-        //$column->setPrecision();
-        $columns[] = $column;
-
-        return $columns;
+        return Column::reassignAliases(array(
+            Column::createNew()
+                ->setType('long')
+                ->setName('date')
+                ->setLength(8)
+        ));
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function extract(RowInterface $row)
     {
-        $this->day->add(new DateInterval('P1D'));
-        $row->set('date', (int)$this->day->format('Ymd'));
+        $interval = sprintf('P%sD', $this->interval);
+
+        $this->day->add(new DateInterval($interval));
+        $row->set('date', (int) $this->day->format('Ymd'));
     }
 }
