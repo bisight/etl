@@ -3,6 +3,8 @@
 
 use BiSight\Etl\Console\Application;
 
+date_default_timezone_set('UTC');
+
 $loader = __DIR__ . '/../vendor/autoload.php';
 
 if (!file_exists($loader)) {
