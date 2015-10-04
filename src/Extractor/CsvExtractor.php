@@ -9,13 +9,28 @@ use RuntimeException;
 
 class CsvExtractor implements ExtractorInterface
 {
-    private $basepath;
     private $filename;
     private $columns;
+    private $seperator;
+    private $enclosure;
+    private $escape;
+    private $skiprows;
+
     private $count = 0;
-    private $index = 0;
-    private $csv;
-    
+
+    /**
+     * @var SplFileObject
+     */
+    protected $csv;
+
+    /**
+     * @param string  $filename
+     * @param array   $columns
+     * @param string  $seperator
+     * @param string  $enclosure
+     * @param string  $escape
+     * @param integer $skiprows
+     */
     public function __construct(
         $filename,
         $columns,
@@ -25,23 +40,26 @@ class CsvExtractor implements ExtractorInterface
         $skiprows = 0
     ) {
         $this->filename = $filename;
-        $this->columns = $columns;
+        $this->columns = Column::unserializeArray($columns);
         $this->seperator = $seperator;
         $this->enclosure = $enclosure;
         $this->escape = $escape;
-        $this->skiprows = (int)$skiprows;
+        $this->skiprows = (int) $skiprows;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function init()
     {
         $this->csv = new SplFileObject($this->filename, 'r');
-        
+
         $this->csv->setCsvControl(
             $this->seperator,
             $this->enclosure,
             $this->escape
         );
-        
+
         while (!$this->csv->eof()) {
             $row = $this->csv->fgetcsv();
             if ($row[0] !== null) {
@@ -57,16 +75,25 @@ class CsvExtractor implements ExtractorInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCount()
     {
         return $this->count;
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns()
     {
         return $this->columns;
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function extract(RowInterface $row)
     {
         $data = $this->csv->fgetcsv();
@@ -82,6 +109,6 @@ class CsvExtractor implements ExtractorInterface
             $row->set($column->getAlias(), $value);
             $c++;
         }
-        $this->index++;
     }
+
 }

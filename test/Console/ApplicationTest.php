@@ -1,6 +1,6 @@
 <?php
 
-namespace BiSight\Etl\Test;
+namespace BiSight\Etl\Test\Console;
 
 use BiSight\Etl\Console\Application;
 use BiSight\Etl\Command\SelfUpdateCommand;
@@ -35,7 +35,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $application->add(new SelfUpdateCommand);
         $inputMock = $this->getMock('Symfony\Component\Console\Input\InputInterface');
         $outputMock = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
-        
+
         $inputMock->expects($this->once())
             ->method('getFirstArgument')
             ->will($this->returnValue($command));

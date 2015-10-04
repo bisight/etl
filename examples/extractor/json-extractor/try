@@ -1,0 +1,22 @@
+#!/bin/sh
+
+EXAMPLE_DIRECTORY=$1
+DATABASE=$2
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+echo "${GREEN}\nLets assume that we have next json files with billing information:${NC}"
+ls -l $EXAMPLE_DIRECTORY/json-data
+
+echo "${GREEN}\nWe want to put that data to 'invoices' table at our database...${NC}"
+echo "${GREEN}\nTo do this we prepare next 'job.xml' file:${NC}"
+cat $EXAMPLE_DIRECTORY/job.xml
+
+echo "${GREEN}\nRunning this job with our etl tool...${NC}"
+bin/bisight etl:run $EXAMPLE_DIRECTORY/job.xml dbname=$DATABASE basepath=$EXAMPLE_DIRECTORY/json-data
+
+echo "${GREEN}\nThis job have created table 'invoices' with all proper fields.${NC}"
+echo "${GREEN}\nNow we have all our invoices in table 'invoices':${NC}"
+mysql -u root -e "select * from $DATABASE.invoices;"

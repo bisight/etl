@@ -1,0 +1,19 @@
+table.users:
+
+  random_user{0..9}:
+    email: <email()>
+    firstname: <firstName()>
+    lastname: <lastName()>
+    optin_at: '2015-01-01 01:01:01'
+
+  john_doe:
+    email: john@doe.com
+    firstname: John
+    lastname: Doe
+    optin_at: '2015-01-02 01:01:02'
+
+  homer_simpson:
+    email: homer@simpson.com
+    firstname: Homer
+    lastname: Simpson
+    optin_at: '2015-01-03 01:01:03'

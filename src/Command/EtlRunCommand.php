@@ -18,6 +18,9 @@ use RuntimeException;
 
 class EtlRunCommand extends Command
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         $this
@@ -33,29 +36,47 @@ class EtlRunCommand extends Command
                 InputArgument::IS_ARRAY,
                 'Specify your variables!'
             )
+            ->addOption(
+                'progress',
+                'p',
+                InputOption::VALUE_OPTIONAL,
+                'Show progress bar',
+                true
+            )
         ;
     }
-    
-    
 
+    /**
+     * {@inheritdoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $jobfile = $input->getArgument('jobfile');
         $variables = $input->getArgument('variables');
+
         $v = array();
         foreach ($variables as $variable) {
-            $part = explode("=", $variable);
-            if (count($part)!=2) {
-                throw new RuntimeException("Invalid variable format: `" . $variable . '`. Please use the key=value format.');
+            $part = explode('=', $variable);
+            if (count($part) != 2) {
+                throw new RuntimeException(sprintf(
+                    'Invalid variable format: `%s`. Please use the key=value format.',
+                    $variable
+                ));
             }
             $v[$part[0]] = $part[1];
         }
-        $output->writeLn("Running jobfile: " . $jobfile);
-        
+
+        $output->writeln(sprintf(
+            'Running jobfile: %s',
+            $jobfile
+        ));
+
         $jobloader = new XmlJobLoader();
         $jobs = $jobloader->loadFile($jobfile, $v);
-        
+
         $runner = new ConsoleRunner($output);
+        $runner->setProgress($input->getOption('progress'));
+
         foreach ($jobs as $job) {
             $runner->run($job);
         }

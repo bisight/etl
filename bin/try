@@ -1,0 +1,83 @@
+#!/bin/sh
+
+DATABASE='sandbox_linkorb_etl'
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+if [ ! -f composer.json ]; then
+    echo "$RED"
+    echo "You need to run this command from project root."
+    echo "Right from directory where composer.json placed."
+    echo "$NC"
+    exit;
+fi
+
+TYPE=${1}
+WHICH=${2}
+
+if [ ! $TYPE -o ! $WHICH ]; then # or which
+    echo "$RED"
+    echo "You need to pass TYPE and WHICH as described:"
+    echo "- bin/try TYPE WHICH"
+    echo ""
+    echo "For example:"
+    echo "- bin/try loader pdo"
+    echo "- bin/try extractor csv"
+    echo "- bin/try transformer copy"
+    echo "$NC"
+    exit;
+fi
+
+if [ ! -d "examples/$TYPE" ]; then
+    echo "$RED"
+    echo "Invalid first parameter '$TYPE'. Possible values are:"
+    echo "- $(ls -t1 examples)"
+    echo "$NC"
+    exit;
+fi
+
+EXAMPLE_DIRECTORY="examples/$TYPE/$WHICH-$TYPE"
+
+if [ ! -d $EXAMPLE_DIRECTORY ]; then
+    echo "$RED"
+    echo "Invalid second parameter '$WHICH'. Possible values are:"
+    echo "- $(ls -t1 examples/$TYPE/ | sed s/-$TYPE//g)"
+    echo "$NC"
+    exit;
+fi
+
+echo "Test mysql connection..."
+mysql -u root -e "SELECT 'SUCCESS' as Status;"
+if [ $? -eq 0 ]; then
+    echo "Mysql connection SUCCEED"
+else
+    echo "Mysql connection FAILED"
+    echo "You need to have mysql server running with empty root password."
+    exit;
+fi
+
+echo "${GREEN}\nPreparing environment${NC}"
+
+if [ ! -f /share/config/database/$DATABASE.conf ]; then
+    sudo mkdir -p /share/config/database/
+    sudo cp examples/$DATABASE.conf.dist /share/config/database/$DATABASE.conf
+fi
+
+composer install
+
+mysql -u root -e "DROP DATABASE IF EXISTS $DATABASE;"
+mysqladmin -u root create $DATABASE
+
+if [ -f $EXAMPLE_DIRECTORY/schema.xml ]; then
+    echo "${GREEN}\nLoad schema...${NC}"
+    vendor/bin/dbtk-schema-loader schema:load $EXAMPLE_DIRECTORY/schema.xml $DATABASE --apply
+fi
+
+if [ -f $EXAMPLE_DIRECTORY/fixture.yml ]; then
+    echo "${GREEN}\nLoad fixtures...${NC}"
+    vendor/bin/haigha fixtures:load $EXAMPLE_DIRECTORY/fixture.yml $DATABASE
+fi
+
+./$EXAMPLE_DIRECTORY/try $EXAMPLE_DIRECTORY $DATABASE

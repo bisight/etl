@@ -1,0 +1,2 @@
+invoice_number, created_at, description, client, total, payed_at
+1, "2015-01-01 00:00:00", "First invoice for our best client", "Apple", "19999.99", "2015-01-01 00:01:00"

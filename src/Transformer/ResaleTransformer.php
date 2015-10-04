@@ -7,32 +7,40 @@ use BiSight\Etl\RowInterface;
 
 class ResaleTransformer implements TransformerInterface
 {
-    public function __construct($outputColumnName, $purchasedColumnName, $soldColumnName)
+    private $outputColumn;
+    private $purchasedColumnName;
+    private $soldColumnName;
+
+    /**
+     * @param string $outputColumn        Column definition
+     * @param string $purchasedColumnName
+     * @param string $soldColumnName
+     */
+    public function __construct($outputColumn, $purchasedColumnName, $soldColumnName)
     {
-        $this->outputColumnName = $outputColumnName;
+        $this->outputColumn = Column::unserialize($outputColumn, 'decimal', 22);
         $this->purchasedColumnName = $purchasedColumnName;
         $this->soldColumnName = $soldColumnName;
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns()
     {
-        $columns = array();
-        
-        $column = new Column();
-        $column->setName($this->outputColumnName);
-        $column->setLength(22);
-        $column->setType('DOUBLE');
-        $column->setPrecision('');
-        $columns[] = $column;
-        
-        return $columns;
+        return Column::reassignAliases(array(
+            $this->outputColumn
+        ));
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function transform(RowInterface $row)
     {
         $purchased = $row->get($this->purchasedColumnName);
         $sold = $row->get($this->soldColumnName);
-        if ($purchased>0) {
+        if ($purchased > 0) {
             $score = round(100 * $sold / $purchased);
         } else {
             $score = 0;
