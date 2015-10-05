@@ -1,0 +1,22 @@
+#!/bin/sh
+
+EXAMPLE_DIRECTORY=$1
+DATABASE=$2
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+echo "${GREEN}\nLet assume that we have next users at table 'users':${NC}"
+mysql -u root -e "select * from $DATABASE.users;"
+
+echo "${GREEN}\nWe want to have 'registered_at' exposed to a bunch of fields like 'year', 'month', etc at our 'users_exposed_registration' table...${NC}"
+echo "${GREEN}\nTo do this we prepare next 'job.xml' file:${NC}"
+cat $EXAMPLE_DIRECTORY/job.xml
+
+echo "${GREEN}\nRunning this job with our etl tool...${NC}"
+bin/bisight etl:run $EXAMPLE_DIRECTORY/job.xml dbname=$DATABASE
+
+echo "${GREEN}\nThis job have created table 'users_exposed_registration' with all proper fields for our new data set.${NC}"
+echo "${GREEN}\nNow we have next data at 'users_exposed_registration':${NC}"
+mysql -u root -e "select * from $DATABASE.users_exposed_registration;"

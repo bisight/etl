@@ -6,6 +6,9 @@ use BiSight\Etl\RowInterface;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
 use RuntimeException;
 
+/**
+ * @todo Replace echo to $output->writeln
+ */
 class PdoLoader implements LoaderInterface
 {
     private $pdo;
@@ -17,115 +20,172 @@ class PdoLoader implements LoaderInterface
     public function __construct($dbname, $tablename, $indexes = null, $skipdrop = false)
     {
         $dbm = new DatabaseManager();
-        $pdo = $dbm->getPdo($dbname);
 
-        $this->pdo = $pdo;
+        $this->pdo = $dbm->getPdo($dbname);
         $this->tablename = $tablename;
         $this->indexes = $indexes;
+
         if ($skipdrop == 'true') {
             $this->skipdrop = true;
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getTablename()
     {
         return $this->tablename;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function load(RowInterface $row)
     {
-        $sql = "INSERT INTO " . $this->tablename;
-        $sql .= " (";
+        $sql = 'INSERT INTO ' . $this->tablename;
+        $sql .= ' (';
         foreach ($this->columns as $column) {
-            $sql .= $column->getAlias() . ", ";
+            $sql .= $column->getAlias() . ', ';
         }
-        $sql = rtrim($sql, ", ");
-        $sql .= ") VALUES (";
+        $sql = rtrim($sql, ', ');
+        $sql .= ') VALUES (';
         $values = array();
 
         foreach ($this->columns as $column) {
             $values[] = $row->get($column->getAlias());
-            $sql .= "?, ";
+            $sql .= '?, ';
         }
-        $sql = rtrim($sql, ", ");
-        $sql .= ");";
+        $sql = rtrim($sql, ', ');
+        $sql .= ');';
 
         $this->stmt = $this->pdo->prepare($sql);
-        $this->stmt->execute($values);
+        if (!$this->stmt->execute($values)) {
+            throw new \Exception(sprintf(
+                "Query '%s' failed with values %s.",
+                $sql,
+                implode(', ', $values)
+            ));
+        }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @todo Refactor
+     */
     public function init($columns)
     {
         $this->columns = $columns;
+
         if (!$this->skipdrop) {
-            $sql = "DROP TABLE " . $this->tablename;
+            $sql = sprintf('DROP TABLE `%s`', $this->tablename);
             $this->stmt = $this->pdo->prepare($sql);
             $this->stmt->execute();
         }
 
-        $sql = "CREATE TABLE " . $this->tablename;
-        $sql .= "(";
+        $sql = sprintf('CREATE TABLE `%s`', $this->tablename);
+        $sql .= '(';
         foreach ($columns as $column) {
-
             switch ($column->getType()) {
-                case "TINY":
-                    $type = "int(" . $column->getLength() . ")";
+                case 'TINY':
+                case 'TINYINT':
+                    $type = 'tinyint';
                     break;
-                case "LONG":
-                    $type = "int(" . $column->getLength() . ")";
+
+                case 'integer':
+                case 'LONG':
+                    $type = 'int';
                     break;
-                case "DOUBLE":
-                    $type = "double";
+
+                case 'numeric':
+                case 'decimal':
+                    if ($column->getLength() && $column->getPrecision()) {
+                        $type = $column->getType() . '(' . $column->getLength() . ',' . $column->getPrecision() . ')';
+                    } elseif ($column->getLength()) {
+                        $type = $column->getType() . '(' . $column->getLength() . ')';
+                    } else {
+                        $type = $column->getType();
+                    }
                     break;
-                case "VAR_STRING":
-                    $type = "varchar(" . $column->getLength() . ")";
+
+                case 'double':
+                case 'DOUBLE':
+                    $type = 'double';
                     break;
-                case "STRING":
-                    $type = "varchar(" . $column->getLength() . ")";
+
+                case 'string':
+                case 'STRING':
+                case 'VAR_STRING':
+                    $type = 'varchar(' . $column->getLength() . ')';
                     break;
-                case "BLOB":
-                    $type = "text";
+
+                case 'text':
+                    $type = 'text';
                     break;
+
+                case 'datetime':
+                case 'DATETIME':
+                    $type = 'DATETIME';
+                    break;
+
+                case 'BLOB':
+                    $type = 'text';
+                    break;
+
                 default:
-                    throw new RuntimeException("Unsupported type: " . $column->getType());
+                    throw new RuntimeException(sprintf(
+                        'Unsupported type "%s"',
+                        $column->getType()
+                    ));
             }
-            $sql .= $column->getAlias() . " " . $type . ", ";
+            $sql .= $column->getAlias() . ' ' . $type . ', ';
         }
-        $sql = rtrim($sql, ", ");
-        $sql .= ");";
-        //echo $sql;
+        $sql = rtrim($sql, ', ');
+        $sql .= ');';
 
         $this->stmt = $this->pdo->prepare($sql);
-        $this->stmt->execute();
-
+        if (!$this->stmt->execute()) {
+            throw new \Exception(sprintf(
+                "Query '%s' failed.",
+                $sql
+            ));
+        }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function cleanup()
     {
         $indexes = $this->indexes;
-        $indexes = str_replace("\n", ";", $indexes);
+        $indexes = str_replace("\n", ';', $indexes);
         $lines = explode(';', $indexes);
+
         foreach ($lines as $line) {
             $line = trim($line);
             if ($line) {
                 $part = explode(':', $line);
                 $indexname = $part[0];
-                if (count($part)!=2) {
-                    throw new RuntimeException("Failed parsing indexline: " . $line);
+                if (count($part) != 2) {
+                    throw new RuntimeException(sprintf(
+                        'Failed parsing indexline: %s',
+                        $line
+                    ));
                 }
                 $columnnames = explode(',', $part[1]);
 
-                $sql = "ALTER TABLE " . $this->tablename;
-                $sql .= " ADD INDEX " . $indexname;
-                $sql .= "(";
+                $sql = 'ALTER TABLE ' . $this->tablename;
+                $sql .= ' ADD INDEX ' . $indexname;
+                $sql .= '(';
 
                 foreach ($columnnames as $columnname) {
                     $sql .= $columnname . ', ';
                 }
 
                 $sql = rtrim($sql, ' ,');
-                $sql .= ");";
-                echo "\n" .$sql . "\n";
+                $sql .= ');';
+                echo "\n" . $sql . "\n";
 
                 $this->stmt = $this->pdo->prepare($sql);
                 $res = $this->stmt->execute();

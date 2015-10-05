@@ -1,0 +1,22 @@
+#!/bin/sh
+
+EXAMPLE_DIRECTORY=$1
+DATABASE=$2
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+echo "${GREEN}\nLet assume that we have next orders at table 'orders':${NC}"
+mysql -u root -e "select * from $DATABASE.orders;"
+
+echo "${GREEN}\nWe want to calculate our resale scores and place to table 'resale_score' table...${NC}"
+echo "${GREEN}\nTo do this we prepare next 'job.xml' file:${NC}"
+cat $EXAMPLE_DIRECTORY/job.xml
+
+echo "${GREEN}\nRunning this job with our etl tool...${NC}"
+bin/bisight etl:run $EXAMPLE_DIRECTORY/job.xml dbname=$DATABASE
+
+echo "${GREEN}\nThis job have created table 'resale_score' with all proper fields for our new data set.${NC}"
+echo "${GREEN}\nNow we have all our resale scores in table 'resale_score':${NC}"
+mysql -u root -e "select * from $DATABASE.resale_score;"

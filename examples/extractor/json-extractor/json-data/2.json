@@ -1,0 +1,8 @@
+{
+    "invoice_number": 2,
+    "created_at": "2015-01-02",
+    "description": "First invoice to our second client",
+    "client": "Apple",
+    "total": "19999.99",
+    "payed_at": "2015-01-03"
+}

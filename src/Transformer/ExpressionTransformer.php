@@ -9,40 +9,45 @@ use BiSight\Etl\Transformer\ExpressionUtils;
 
 class ExpressionTransformer implements TransformerInterface
 {
-    private $outputColumnName;
+    private $outputColumn;
     private $expression;
+    private $language;
     private $utils;
-    
-    public function __construct($expression, $outputColumnName)
+
+    /**
+     * @param string $expression
+     * @param string $outputColumn Column definition
+     */
+    public function __construct($expression, $outputColumn)
     {
-        $this->outputColumnName = $outputColumnName;
+        $this->outputColumn = Column::unserialize($outputColumn, 'decimal', 22);
         $this->expression = $expression;
+
         $this->language = new ExpressionLanguage();
         $this->utils = new ExpressionUtils();
     }
-    
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns()
     {
-        $columns = array();
-        
-        $column = new Column();
-        $column->setName($this->outputColumnName);
-        $column->setLength(22);
-        $column->setType('DOUBLE');
-        $column->setPrecision('');
-        $columns[$column->getAlias()] = $column;
-        
-        return $columns;
+        return Column::reassignAliases(array(
+            $this->outputColumn
+        ));
     }
-    
+
+    /**
+     * {@inheritdoc}
+     *
+     * @todo Possible optimization by pre-compiling the expression on init
+     */
     public function transform(RowInterface $row)
     {
-        // TODO: Possible optimization by pre-compiling the expression on init
         $data = $row->getArray();
         $data['utils'] = $this->utils;
 
         $output = $this->language->evaluate($this->expression, $data);
-        $row->set($this->outputColumnName, $output);
+        $row->set($this->outputColumn->getName(), $output);
     }
 }

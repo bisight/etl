@@ -10,109 +10,98 @@ class DateTransformer implements TransformerInterface
 {
     private $dateColumnName;
 
+    /**
+     * @param string $dateColumnName
+     */
     public function __construct($dateColumnName = 'date')
     {
         $this->dateColumnName = $dateColumnName;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns()
     {
-        $columns = array();
-
-        $column = new Column();
-        $column->setName('year');
-        $column->setType('LONG');
-        $column->setLength(11);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-
-        $column = new Column();
-        $column->setName('month');
-        $column->setType('LONG');
-        $column->setLength(11);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        $column = new Column();
-        $column->setName('weeknumber');
-        $column->setType('LONG');
-        $column->setLength(11);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        $column = new Column();
-        $column->setName('yearmonth');
-        $column->setType('LONG');
-        $column->setLength(11);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        $column = new Column();
-        $column->setName('quarter');
-        $column->setType('LONG');
-        $column->setLength(11);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        $column = new Column();
-        $column->setName('yearquarter');
-        $column->setType('LONG');
-        $column->setLength(11);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        $column = new Column();
-        $column->setName('yearquartermonth');
-        $column->setType('LONG');
-        $column->setLength(11);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        $column = new Column();
-        $column->setName('weekday');
-        $column->setType('LONG');
-        $column->setLength(11);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        $column = new Column();
-        $column->setName('weekdayname');
-        $column->setType('VAR_STRING');
-        $column->setLength(16);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        $column = new Column();
-        $column->setName('weekdayflag');
-        $column->setType('VAR_STRING');
-        $column->setLength(1);
-        $column->setPrecision('');
-        $columns[] = $column;
-
-        return $columns;
+        return Column::reassignAliases(array(
+            Column::createNew()
+                ->setName('year')
+                ->setType('integer')
+                ->setLength(4),
+            Column::createNew()
+                ->setName('month')
+                ->setType('integer')
+                ->setLength(2),
+            Column::createNew()
+                ->setName('weeknumber')
+                ->setType('integer')
+                ->setLength(3),
+            Column::createNew()
+                ->setName('yearmonth')
+                ->setType('integer')
+                ->setLength(6),
+            Column::createNew()
+                ->setName('quarter')
+                ->setType('integer')
+                ->setLength(1),
+            Column::createNew()
+                ->setName('yearquarter')
+                ->setType('integer')
+                ->setLength(5),
+            Column::createNew()
+                ->setName('yearquartermonth')
+                ->setType('integer')
+                ->setLength(7),
+            Column::createNew()
+                ->setName('weekday')
+                ->setType('integer')
+                ->setLength(1),
+            Column::createNew()
+                ->setName('weekdayname')
+                ->setType('string')
+                ->setLength(16),
+            Column::createNew()
+                ->setName('weekdayflag')
+                ->setType('string')
+                ->setLength(1)
+        ));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function transform(RowInterface $row)
     {
         $datestring = $row->get($this->dateColumnName);
         $date = new DateTime($datestring);
-        $quarter = ceil($date->format('n')/3);
-        $weekday = 'Y';
 
-        if (($date->format('N')==6) || ($date->format('N')==7)) {
+        $quarter = ceil($date->format('n') / 3);
+
+        $weekday = 'Y';
+        if (($date->format('N') == 6) || ($date->format('N') == 7)) {
             $weekday = 'N';
         }
 
-        $row->set('year', (int)$date->format('Y'));
-        $row->set('month', (int)$date->format('m'));
-        $row->set('weekday', (int)$date->format('N'));
+        $row->set('year', (int) $date->format('Y'));
+        $row->set('month', (int) $date->format('m'));
+        $row->set('weekday', (int) $date->format('N'));
         $row->set('weekdayname', $date->format('l'));
         $row->set('weekdayflag', $weekday);
-        $row->set('weeknumber', (int)$date->format('W'));
-        $row->set('yearmonth', (int)$date->format('Ym'));
-        $row->set('quarter', (int)$quarter);
-        $row->set('yearquarter', (int)$date->format('Y') . $quarter);
-        $row->set('yearquartermonth', (int)$date->format('Y') . $quarter . $date->format('m'));
+        $row->set('weeknumber', (int) $date->format('W'));
+        $row->set('yearmonth', (int) $date->format('Ym'));
+        $row->set('quarter', (int) $quarter);
+
+        $row->set('yearquarter', sprintf(
+            "%s%s",
+            (int) $date->format('Y'),
+            $quarter
+        ));
+
+        $row->set('yearquartermonth', sprintf(
+            "%s%s%s",
+            (int) $date->format('Y'),
+            $quarter,
+            $date->format('m')
+        ));
     }
 }

@@ -1,0 +1,20 @@
+table.orders:
+  good_1:
+    product: Cup
+    wholesale_price: 7
+    sold_price: 9
+
+  good_2:
+    product: Sticker
+    wholesale_price: 1
+    sold_price: 2
+
+  good_3:
+    product: Car
+    wholesale_price: 29999
+    sold_price: 34999
+
+  good_4:
+    product: House
+    wholesale_price: 249999
+    sold_price: 299999

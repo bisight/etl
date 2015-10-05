@@ -1,0 +1,18 @@
+table.users:
+
+  random_user{0..9}:
+    email: <email()>
+    firstname: <firstName()>
+    lastname: <lastName()>
+
+  john_doe:
+    email: john@doe.com
+    firstname: John
+    lastname: Doe
+    subscribed_at: '2015-01-01'
+
+  homer_simpson:
+    email: homer@simpson.com
+    firstname: Homer
+    lastname: Simpson
+    subscribed_at: '2015-01-01'

@@ -14,48 +14,66 @@ class PdoExtractor implements ExtractorInterface
     private $sql;
     private $count;
 
+    /**
+     * @param string $dbname
+     * @param string $sql
+     */
     public function __construct($dbname, $sql)
     {
         $dbm = new DatabaseManager();
-        $pdo = $dbm->getPdo($dbname);
-        $this->pdo = $pdo;
+        $this->pdo = $dbm->getPdo($dbname);
         $this->sql = $sql;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function init()
     {
         $this->stmt = $this->pdo->prepare($this->sql);
         $res = $this->stmt->execute();
+
         if (!$res) {
             $arr = $this->stmt->errorInfo();
-            throw new RuntimeException($arr[2] . "\n" . $this->sql);
+            throw new RuntimeException(sprintf(
+                "%s\n%s",
+                $arr[2], $this->sql
+            ));
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCount()
     {
         return $this->stmt->rowCount();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns()
     {
         $columns = array();
         $i = 0;
         while ($i < $this->stmt->columnCount()) {
-            $column = new Column();
-            $meta = $this->stmt->getColumnMeta($i);
-            //print_r($meta);
-            $column->setName((string)$meta['name']);
-            $column->setLength((string)$meta['len']);
-            $column->setType((string)$meta['native_type']);
-            $column->setPrecision((string)$meta['precision']);
-            // optional: flags and tablename
-            $columns[$column->getAlias()] = $column;
-            $i++;
+            $meta = $this->stmt->getColumnMeta($i++);
+
+            $columns[] = Column::createNew()
+                ->setName((string) $meta['name'])
+                ->setLength((string) $meta['len'])
+                ->setType((string) $meta['native_type'])
+                ->setPrecision((string) $meta['precision'])
+            ;
         }
-        return $columns;
+
+        return Column::reassignAliases($columns);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function extract(RowInterface $row)
     {
         $data = $this->stmt->fetch(PDO::FETCH_ASSOC);

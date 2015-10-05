@@ -1,32 +1,40 @@
 {
     "name": "bisight/etl",
     "description": "BiSight ETL: Extract, Transform, Load toolkit",
-    "keywords": ["etl", "extract", "transform", "load", "business intelligence", "bi"],
+    "keywords": ["etl", "extract", "transform", "load", "business intelligence", "bi", "linkorb"],
     "license": "MIT",
     "type": "library",
-    "authors": [
-        {
-            "name": "Joost Faassen",
-            "email": "j.faassen@onatal.nl",
-            "role": "Developer"
-        }
-    ],
+    "authors": [{
+        "name": "Joost Faassen",
+        "email": "j.faassen@onatal.nl",
+        "role": "Developer"
+    }, {
+        "name": "LinkORB",
+        "email": "engineering@linkorb.com"
+    }],
     "support": {
         "e-mail": "support@linkorb.com",
         "issues": "https://github.com/bisight/etl/issues"
     },
     "require": {
         "symfony/console": "~2.4",
-        "symfony/expression-language": "~2.4",
-        
-        "linkorb/database-manager": "~1.0"
+        "symfony/expression-language": "~2.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.6.6",
-        
+        "doctrine/dbal": "~2.4",
+        "phpunit/phpunit": "~4.6",
+        "linkorb/haigha": "~2.1",
+        "dbtk/schema-loader": "~2.0",
+
         "herrera-io/phar-update": "1.*",
         "symfony/process": "~2.1",
-        "secondtruth/phar-compiler": "dev-master"
+        "secondtruth/phar-compiler": "~1.1",
+        "linkorb/conventions-checker": "~1.1"
+    },
+    "extra": {
+        "grumphp": {
+            "config-default-path": "vendor/linkorb/conventions-checker/config/app/grumphp.yml"
+        }
     },
     "bin": ["bin/bisight"],
     "autoload": {
