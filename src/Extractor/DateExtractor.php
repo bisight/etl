@@ -52,7 +52,7 @@ class DateExtractor implements ExtractorInterface
     {
         return Column::reassignAliases(array(
             Column::createNew()
-                ->setType('long')
+                ->setType('integer')
                 ->setName('date')
                 ->setLength(8)
         ));
