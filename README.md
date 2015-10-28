@@ -17,7 +17,7 @@ According to [Wikipedia](http://en.wikipedia.org/wiki/Extract,_transform,_load)
 
 ## Docs
 
-Read the docs at [bisight-etl.readthedocs.com](http://bisight-etl.readthedocs.com/).
+Read the docs at [etl.readthedocs.org](http://etl.readthedocs.org/).
 
 ## How to try?
 
