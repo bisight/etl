@@ -97,7 +97,9 @@ class PdoLoader implements LoaderInterface
                 case 'LONG':
                     $type = 'int';
                     break;
-
+                case 'LONGLONG':
+                    $type = 'bigint';
+                    break;
                 case 'numeric':
                 case 'decimal':
                     if ($column->getLength() && $column->getPrecision()) {
@@ -108,7 +110,9 @@ class PdoLoader implements LoaderInterface
                         $type = $column->getType();
                     }
                     break;
-
+                case 'NEWDECIMAL':
+                    $type = 'decimal(13,3)';
+                    break;
                 case 'double':
                 case 'DOUBLE':
                     $type = 'double';
