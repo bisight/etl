@@ -36,13 +36,16 @@ class ConsoleRunner
         $transformers = $job->getTransformers();
         $loaders = $job->getLoaders();
 
-        $extractor->init();
-
-        $count = $extractor->getCount();
+        $count = 0;
+        $columns = array();
+        if ($extractor) {
+            $extractor->init();
+            $count = $extractor->getCount();
+            $columns = $extractor->getColumns();
+        }
         $this->output->writeln('Running job: ' . $job->getName() . ' with ' . $count . ' rows');
 
-        $columns = $extractor->getColumns();
-
+        
         foreach ($transformers as $transformer) {
             $columnsNew = $transformer->getColumns();
             if (!is_null($columnsNew)) {
