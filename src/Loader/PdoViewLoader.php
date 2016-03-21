@@ -50,11 +50,37 @@ class PdoViewLoader implements LoaderInterface
     {
         $this->columns = $columns;
 
-        $sql = sprintf('DROP TABLE `%s`', $this->tablename);
+        $sql = sprintf('DROP TABLE IF EXISTS `%s`', $this->tablename);
         $this->stmt = $this->pdo->prepare($sql);
         $this->stmt->execute();
 
-        $sql = sprintf('CREATE OR REPLACE VIEW `%s` AS ' . $this->sql, $this->tablename);
+        // Get columns
+        $sql = str_replace('**', '*', $this->sql);
+
+        $this->stmt = $this->pdo->prepare($sql);
+        if (!$this->stmt->execute()) {
+            throw new \Exception(sprintf(
+                "Query '%s' failed.",
+                $sql
+            ));
+        }
+        
+        $columnNames = '';
+        $c = 0;
+        while ($c<$this->stmt->columnCount()) {
+            $meta = $this->stmt->getColumnMeta($c);
+            //print_r($meta);
+            if ($columnNames!='') {
+                $columnNames .= ', ';
+            }
+            $columnNames .= $meta['table'] . '.' . $meta['name'] . ' AS ' . $meta['table'] . '_' . $meta['name'];
+            $c++;
+        }
+        //exit($columnNames);
+        $sql = str_replace('**', $columnNames, $this->sql);
+        
+        // Create the view
+        $sql = sprintf('CREATE OR REPLACE VIEW `%s` AS ' . $sql, $this->tablename);
         
         $sql .= ';';
 
