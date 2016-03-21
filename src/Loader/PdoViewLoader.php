@@ -5,6 +5,7 @@ namespace BiSight\Etl\Loader;
 use BiSight\Etl\RowInterface;
 use LinkORB\Component\DatabaseManager\DatabaseManager;
 use RuntimeException;
+use SqlFormatter;
 
 /**
  * @todo Replace echo to $output->writeln
@@ -22,7 +23,7 @@ class PdoViewLoader implements LoaderInterface
 
         $this->pdo = $dbm->getPdo($dbname);
         $this->tablename = $tablename;
-        $this->sql = $sql;
+        $this->sql = SqlFormatter::format($sql, false);
     }
 
     /**
@@ -60,8 +61,9 @@ class PdoViewLoader implements LoaderInterface
         $this->stmt = $this->pdo->prepare($sql);
         if (!$this->stmt->execute()) {
             throw new \Exception(sprintf(
-                "Query '%s' failed.",
-                $sql
+                "Query failed:\n%s\nError: %s",
+                $sql,
+                $this->stmt->errorCode() . ': ' . $this->stmt->errorInfo()[2]
             ));
         }
         
@@ -69,14 +71,12 @@ class PdoViewLoader implements LoaderInterface
         $c = 0;
         while ($c<$this->stmt->columnCount()) {
             $meta = $this->stmt->getColumnMeta($c);
-            //print_r($meta);
             if ($columnNames!='') {
                 $columnNames .= ', ';
             }
             $columnNames .= $meta['table'] . '.' . $meta['name'] . ' AS ' . $meta['table'] . '_' . $meta['name'];
             $c++;
         }
-        //exit($columnNames);
         $sql = str_replace('**', $columnNames, $this->sql);
         
         // Create the view
