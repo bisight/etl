@@ -132,6 +132,9 @@ class PdoLoader implements LoaderInterface
                 case 'DATETIME':
                     $type = 'DATETIME';
                     break;
+                case 'DATE':
+                    $type = 'DATETIME';
+                    break;
 
                 case 'BLOB':
                     $type = 'text';
