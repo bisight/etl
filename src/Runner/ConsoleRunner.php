@@ -45,7 +45,7 @@ class ConsoleRunner
         }
         $this->output->writeln('Running job: ' . $job->getName() . ' with ' . $count . ' rows');
 
-        
+
         foreach ($transformers as $transformer) {
             $columnsNew = $transformer->getColumns();
             if (!is_null($columnsNew)) {
@@ -72,6 +72,7 @@ class ConsoleRunner
         }
 
         $i = 0;
+
         while ($i < $count) {
             $row = new Row();
 
@@ -84,14 +85,16 @@ class ConsoleRunner
             foreach ($loaders as $loader) {
                 $loader->load($row);
             }
-
-            if ($this->progress) {
-                $progress->advance();
+            if ($i % 1000 == 0) {
+                if ($this->progress) {
+                    $progress->setProgress($i);
+                }
             }
 
             $row = null;
             $i++;
         }
+        $progress->setProgress($i);
 
         foreach ($loaders as $loader) {
             $loader->cleanup();
