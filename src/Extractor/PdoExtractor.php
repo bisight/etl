@@ -13,6 +13,8 @@ class PdoExtractor implements ExtractorInterface
     private $pdo;
     private $sql;
     private $count;
+    private $dbm;
+    private $dbname;
 
     /**
      * @param string $dbname
@@ -20,8 +22,8 @@ class PdoExtractor implements ExtractorInterface
      */
     public function __construct($dbname, $sql)
     {
-        $dbm = new DatabaseManager();
-        $this->pdo = $dbm->getPdo($dbname);
+        $this->dbm = new DatabaseManager();
+        $this->dbname = $dbname;
         $this->sql = $sql;
     }
 
@@ -30,6 +32,7 @@ class PdoExtractor implements ExtractorInterface
      */
     public function init()
     {
+        $this->pdo = $this->dbm->getPdo($this->dbname);
         $this->stmt = $this->pdo->prepare($this->sql);
         $res = $this->stmt->execute();
 

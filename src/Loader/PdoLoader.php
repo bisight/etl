@@ -19,9 +19,7 @@ class PdoLoader implements LoaderInterface
 
     public function __construct($dbname, $tablename, $indexes = null, $skipdrop = false)
     {
-        $dbm = new DatabaseManager();
-
-        $this->pdo = $dbm->getPdo($dbname);
+        $this->dbname = $dbname;
         $this->tablename = $tablename;
         $this->indexes = $indexes;
 
@@ -76,6 +74,9 @@ class PdoLoader implements LoaderInterface
      */
     public function init($columns)
     {
+        $dbm = new DatabaseManager();
+        $this->pdo = $dbm->getPdo($this->dbname);
+
         $this->columns = $columns;
 
         if (!$this->skipdrop) {
