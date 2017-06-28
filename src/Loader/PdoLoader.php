@@ -17,6 +17,8 @@ class PdoLoader implements LoaderInterface
     private $columns = array();
     private $skipdrop = false;
 
+    private $rowBuffer = [];
+
     public function __construct($dbname, $tablename, $indexes = null, $skipdrop = false)
     {
         $this->dbname = $dbname;
@@ -41,22 +43,43 @@ class PdoLoader implements LoaderInterface
      */
     public function load(RowInterface $row)
     {
+        $this->rowBuffer[] = $row;
+        if (count($this->rowBuffer)>100) {
+            $this->flushBuffer();
+        }
+    }
+
+    public function flushBuffer()
+    {
+        if (count($this->rowBuffer)==0) {
+            return;
+        }
         $sql = 'INSERT INTO ' . $this->tablename;
         $sql .= ' (';
         foreach ($this->columns as $column) {
             $sql .= $column->getAlias() . ', ';
         }
         $sql = rtrim($sql, ', ');
-        $sql .= ') VALUES (';
-        $values = array();
+        $sql .= ') VALUES ';
 
-        foreach ($this->columns as $column) {
-            $values[] = $row->get($column->getAlias());
-            $sql .= '?, ';
+        $rowCount = 0;
+        $values = [];
+        foreach ($this->rowBuffer as $row) {
+            if ($rowCount>0) {
+                $sql .= ', ';
+            }
+            $sql .= '(';
+
+            foreach ($this->columns as $column) {
+                $values[] = $row->get($column->getAlias());
+                $sql .= '?, ';
+            }
+            $sql = rtrim($sql, ', ');
+            $sql .= ')';
+            $rowCount++;
         }
-        $sql = rtrim($sql, ', ');
-        $sql .= ');';
-
+        $sql .= ';';
+        //echo $sql;
         $this->stmt = $this->pdo->prepare($sql);
         if (!$this->stmt->execute($values)) {
             throw new \Exception(sprintf(
@@ -65,6 +88,7 @@ class PdoLoader implements LoaderInterface
                 implode(', ', $values)
             ));
         }
+        $this->rowBuffer = [];
     }
 
     /**
@@ -76,7 +100,7 @@ class PdoLoader implements LoaderInterface
     {
         $dbm = new DatabaseManager();
         $this->pdo = $dbm->getPdo($this->dbname);
-
+        $this->rowBuffer = [];
         $this->columns = $columns;
 
         if (!$this->skipdrop) {
@@ -166,6 +190,8 @@ class PdoLoader implements LoaderInterface
      */
     public function cleanup()
     {
+        $this->flushBuffer();
+
         $indexes = $this->indexes;
         $indexes = str_replace("\n", ';', $indexes);
         $lines = explode(';', $indexes);
