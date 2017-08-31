@@ -119,7 +119,7 @@ class XmlJobLoader implements JobLoaderInterface
             //         break;
 
             //     default:
-                    $value = $this->processVariables((string) $argumentNode, $variables);
+            $value = $this->processVariables((string) $argumentNode, $variables);
             // }
             $arguments[$name] = $value;
         }

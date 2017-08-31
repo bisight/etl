@@ -40,7 +40,8 @@ class PdoExtractor implements ExtractorInterface
             $arr = $this->stmt->errorInfo();
             throw new RuntimeException(sprintf(
                 "%s\n%s",
-                $arr[2], $this->sql
+                $arr[2],
+                $this->sql
             ));
         }
     }

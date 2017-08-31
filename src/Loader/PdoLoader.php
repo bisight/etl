@@ -57,7 +57,7 @@ class PdoLoader implements LoaderInterface
         $sql = 'INSERT INTO ' . $this->tablename;
         $sql .= ' (';
         foreach ($this->columns as $column) {
-            $sql .= $column->getAlias() . ', ';
+            $sql .= '`'.$column->getAlias() . '`, ';
         }
         $sql = rtrim($sql, ', ');
         $sql .= ') VALUES ';
@@ -171,7 +171,7 @@ class PdoLoader implements LoaderInterface
                         $column->getType()
                     ));
             }
-            $sql .= $column->getAlias() . ' ' . $type . ', ';
+            $sql .= '`'.$column->getAlias().'` '.$type.', ';
         }
         $sql = rtrim($sql, ', ');
         $sql .= ');';
